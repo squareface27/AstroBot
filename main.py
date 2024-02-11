@@ -1,23 +1,28 @@
 import discord
 from discord.ext import commands
-import requests
+import asyncio
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
-NASA_API_KEY = os.getenv("NASA_API_KEY")
 
 # Activer tous les intents disponibles
 intents = discord.Intents.all()
 
-# Créer une instance du bot
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
     print(f'Connecté en tant que {bot.user}')
 
-# Exécuter le bot avec votre token de bot
-bot.run(TOKEN)
+async def load_extensions():
+    for filename in os.listdir("./cogs/commands"):
+        if filename.endswith(".py"):
+            await bot.load_extension(f"cogs.commands.{filename[:-3]}")
+            print(f'{filename} chargé avec succès.')
+            
+if __name__ == "__main__":
+    asyncio.run(load_extensions())
+    bot.run(TOKEN)
